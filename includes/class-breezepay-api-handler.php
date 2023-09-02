@@ -71,7 +71,7 @@ class BreezepayAPIHandler
             'redirect_url' => $redirect_url,
             'additional_data' => json_encode($additional_data)
         ];
-        $result = $this->_sendRequest('payments/', $args, 'POST', $headers);
+        $result = $this->_sendRequest('order/', $args, 'POST', $headers);
         return $result;
     }
 }
