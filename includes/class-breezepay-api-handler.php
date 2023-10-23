@@ -9,15 +9,24 @@ class BreezepayAPIHandler
 {
     private string $_clientID;
     private string $_clientSecret;
-    private string $_baseURL = 'https://api.paywithbreeze.co/api/v1/';
+    private string $_baseURL = 'https://api.paywithbreeze.co/api/v1';
 
+    /**
+     * Constructor
+     * @param string $clientID
+     * @param string $clientSecret
+     */
     public function __construct(string $clientID, string $clientSecret)
     {
         $this->_clientID = $clientID;
         $this->_clientSecret = $clientSecret;
     }
 
-    private function _getEncodedSecret()
+    /**
+     * Get base64 encode client ID
+     * @return string
+     */
+    private function _getEncodedSecret(): string
     {
         return base64_encode($this->_clientID . ':' . $this->_clientSecret);
     }
@@ -33,7 +42,7 @@ class BreezepayAPIHandler
     private function _sendRequest($endpoint, $params = array(), $method = 'GET', $headers = [])
     {
         $args = array(
-            'method'  => $method,
+            'method' => $method,
             'headers' => $headers
         );
 
@@ -53,25 +62,38 @@ class BreezepayAPIHandler
         }
     }
 
-    public function createPayment(float $amount, string $redirect_url, array $additional_data)
+    /**
+     * Create payment
+     * 
+     * @param float $amount
+     * @param string $redirect_url
+     * @param string $order_id
+     * @return array
+     */
+    public function createPayment(float $amount, string $redirect_url, string $order_id)
     {
         $encodedSecret = $this->_getEncodedSecret();
-        $accessToken = $this->_sendRequest(
-            'oauth/token/',
-            ["token" => $encodedSecret],
+        $oauth = $this->_sendRequest(
+            '/oauth/token',
+            ["client_secret" => $encodedSecret, "grant_type" => "token"],
             'POST',
             ['Content-Type' => 'application/json']
         );
         $headers = array(
-            'Authorization' => 'Bearer ' . $accessToken['access_token'],
+            'Authorization' => 'Bearer ' . $oauth['access_token'],
             'Content-Type' => 'application/json'
         );
         $args = [
+            "ref_id" => $order_id,
+            'currency' => 'AUD',
+            // supported currency at the moment
             'amount' => $amount,
-            'redirect_url' => $redirect_url,
-            'additional_data' => json_encode($additional_data)
+            'metadata' => [
+                "source" => "woocommerce",
+                "redirect_url" => $redirect_url
+            ]
         ];
-        $result = $this->_sendRequest('order/', $args, 'POST', $headers);
+        $result = $this->_sendRequest('/order', $args, 'POST', $headers);
         return $result;
     }
 }

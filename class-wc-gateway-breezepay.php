@@ -27,9 +27,9 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
         $this->init_settings();
 
         // Define user set variables.
-        $this->title       = $this->get_option('title');
+        $this->title = $this->get_option('title');
         $this->description = $this->get_option('description');
-        $this->debug       = 'yes' === $this->get_option('debug', 'no');
+        $this->debug = 'yes' === $this->get_option('debug', 'no');
 
         self::$log_enabled = $this->debug;
 
@@ -46,31 +46,31 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
     public function init_form_fields()
     {
         $this->form_fields = array(
-            'enabled'        => array(
-                'title'   => __('Enable/Disable', 'woocommerce'),
-                'type'    => 'checkbox',
-                'label'   => __('Enable Breezepay Commerce Payment', 'breezepay'),
+            'enabled' => array(
+                'title' => __('Enable/Disable', 'woocommerce'),
+                'type' => 'checkbox',
+                'label' => __('Enable Breezepay Commerce Payment', 'breezepay'),
                 'default' => 'yes',
             ),
-            'title'          => array(
-                'title'       => __('Title', 'woocommerce'),
-                'type'        => 'text',
+            'title' => array(
+                'title' => __('Title', 'woocommerce'),
+                'type' => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
-                'default'     => __('Pay With Breezepay', 'breezepay'),
-                'desc_tip'    => true,
+                'default' => __('Pay With Breezepay', 'breezepay'),
+                'desc_tip' => true,
             ),
-            'description'    => array(
-                'title'       => __('Description', 'woocommerce'),
-                'type'        => 'text',
-                'desc_tip'    => true,
+            'description' => array(
+                'title' => __('Description', 'woocommerce'),
+                'type' => 'text',
+                'desc_tip' => true,
                 'description' => __('This controls the description which the user sees during checkout.', 'woocommerce'),
-                'default'     => __('Pay with Bitcoin, Sol, XLM or other cryptocurrencies.', 'breezepay'),
+                'default' => __('Pay with Bitcoin, Sol, XLM or other cryptocurrencies.', 'breezepay'),
             ),
-            'client_id'        => array(
-                'title'       => __('Client ID', 'breezepay'),
-                'type'        => 'text',
-                'desc_tip'    => true,
-                'default'     => '',
+            'client_id' => array(
+                'title' => __('Client ID', 'breezepay'),
+                'type' => 'text',
+                'desc_tip' => true,
+                'default' => '',
                 'description' => sprintf(
                     // translators: Description field for API on settings page. Includes external link.
                     __(
@@ -80,10 +80,10 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
                     esc_url('https://merchant.paywithbreeze.com.au')
                 ),
             ),
-            'client_secret'        => array(
-                'title'       => __('Client Secret', 'breezepay'),
-                'type'        => 'text',
-                'default'     => '',
+            'client_secret' => array(
+                'title' => __('Client Secret', 'breezepay'),
+                'type' => 'text',
+                'default' => '',
                 'description' => sprintf(
                     // translators: Description field for API on settings page. Includes external link.
                     __(
@@ -93,11 +93,11 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
                     esc_url('https://merchant.paywithbreeze.com.au')
                 ),
             ),
-            'debug'          => array(
-                'title'       => __('Debug log', 'woocommerce'),
-                'type'        => 'checkbox',
-                'label'       => __('Enable logging', 'woocommerce'),
-                'default'     => 'no',
+            'debug' => array(
+                'title' => __('Debug log', 'woocommerce'),
+                'type' => 'checkbox',
+                'label' => __('Enable logging', 'woocommerce'),
+                'default' => 'no',
                 // translators: Description for 'Debug log' section of settings page.
                 'description' => sprintf(__('Log Breezepay API events inside %s', 'breezepay'), '<code>' . WC_Log_Handler_File::get_log_file_path('breezepay') . '</code>'),
             ),
@@ -116,7 +116,7 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
      * Process payment process
      *
      * @param $order_id
-     * @return void
+     * @return array
      */
     public function process_payment($order_id)
     {
@@ -137,14 +137,11 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
         $result = $api->createPayment(
             $order->get_total(),
             $return_url,
-            [
-                'order_id' => $order_id,
-                'source' => 'woocommerce'
-            ]
+            $order_id
         );
 
 
-        $redirect = $result['redirect_url'];
+        $redirect = $result['payment_url'];
 
         return array(
             'result' => 'success',
