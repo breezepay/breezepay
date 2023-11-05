@@ -75,7 +75,7 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
                     // translators: Description field for API on settings page. Includes external link.
                     __(
                         'You can manage your API keys within the Breezepay Settings page, available here: %s',
-                        'coinbase'
+                        'breezepay'
                     ),
                     esc_url('https://merchant.paywithbreeze.com.au')
                 ),
@@ -88,7 +88,20 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
                     // translators: Description field for API on settings page. Includes external link.
                     __(
                         'You can manage your API keys within the Breezepay Settings page, available here: %s',
-                        'coinbase'
+                        'breezepay'
+                    ),
+                    esc_url('https://merchant.paywithbreeze.com.au')
+                ),
+            ),
+            'webhook_secret' => array(
+                'title' => __('Webhook Secret', 'breezepay'),
+                'type' => 'text',
+                'default' => '',
+                'description' => sprintf(
+                    // translators: Description field for API on settings page. Includes external link.
+                    __(
+                        'You can manage your Webhook keys within the Breezepay Settings page, available here: %s',
+                        'breezppay'
                     ),
                     esc_url('https://merchant.paywithbreeze.com.au')
                 ),
@@ -113,14 +126,13 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
     }
 
     /**
-     * Process payment process
+     * Process payments
      *
      * @param $order_id
      * @return array
      */
     public function process_payment($order_id)
     {
-
         global $woocommerce;
 
         // we need it to get any order details
@@ -140,7 +152,6 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
             $order_id
         );
 
-
         $redirect = $result['payment_url'];
 
         return array(
@@ -150,13 +161,79 @@ class WC_Gateway_Breezepay extends WC_Payment_Gateway
     }
 
     /**
+     * Update the status of an order from a payload.
+     * 
+     * @param WC_Order $order
+     * @param array $status
+     */
+    public function _update_order_status($order, $status)
+    {
+        switch ($status) {
+            case 'cancelled':
+                $order->update_status('cancelled', __('Breezepay payment cancelled.', 'breezepay'));
+                break;
+            case 'pending':
+                $order->update_status('pending', __('Breezepay payment pending.', 'breezepay'));
+                break;
+            case 'pending-chain':
+                $order->update_status('blockchainpending', __('Breezepay payment detected but awaiting blockchain confirmation.', 'breezepay'));
+                break;
+            case 'completed':
+                $order->update_status('processing', __('Breezepay payment was successfully processed.', 'breezepay'));
+                $order->payment_complete();
+                break;
+            default:
+                exit;
+        }
+    }
+
+    /**
      * Handle requests sent to webhook.
      */
     public function handle_webhook()
     {
-        $order_id = isset($_GET['order_id']) ? $_GET['order_id'] : null;
-        $order = wc_get_order($order_id);
-        $order->payment_complete();
-        wc_reduce_stock_levels($order_id);
+        $payload = file_get_contents('php://input');
+
+        if (!empty($payload) && $this->validate_webhook()) {
+            $data = json_decode($payload, true);
+
+            if (!isset($data['order_id'])) {
+                // Probably a charge not created by us.
+                exit;
+            }
+
+            $order_id = $data['order_id'];
+
+            $this->_update_order_status(wc_get_order($order_id), $data['status']);
+
+            exit;  // 200 response for acknowledgement.
+        }
+
+        wp_die('Breezepay Webhook Request Failure', 'Breezepay Webhook', array('response' => 500));
+    }
+
+    /**
+     * Check if webhook request is valid.
+     * 
+     * @param string $payload
+     */
+    public function validate_webhook()
+    {
+        if (!isset($_SERVER['HTTP_X_WEBHOOK_SIGNATURE']) && !isset($_SERVER['HTTP_X_WEBHOOK_MSG'])) {
+            return false;
+        }
+
+        $hook_signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'];
+        $message = $_SERVER['HTTP_X_WEBHOOK_MSG'];
+
+        $secret = $this->get_option('webhook_secret');
+
+        $wc_signature = hash_hmac('sha256', $message, $secret);
+
+        if ($hook_signature === $wc_signature) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -4,7 +4,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-
 class BreezepayAPIHandler
 {
     private string $_clientID;
