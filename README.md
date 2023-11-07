@@ -1,8 +1,8 @@
-# Breezepay Woocommerce Pluign
+# Breezepay Pluign
 
 One click crypto payment solution
 
-Breezepay Woocommerce plugin allows woocommerce powered website to add crypto payment solution through Breezepay API gateway.
+The Breezepay plugin allows Woocommerce powered website to add crypto payment solution through Breezepay API gateway.
 
 ## Requirements
 
