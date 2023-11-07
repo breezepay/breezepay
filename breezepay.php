@@ -1,7 +1,7 @@
 <?php
 
 /*
-Plugin Name:            Breezepay WooCommerce
+Plugin Name:            Breezepay
 Plugin URI:             https://github.com/breezepay/breezepay-woocommerce/
 Description:            Allows customers to pay with their Crypto Wallet via Breezpay Gateway
 Version:                1.0
