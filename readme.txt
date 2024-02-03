@@ -10,3 +10,23 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 == Description ==
 Breezepay allows website to integrate cryptocurrency payment where users can connect their defi wallet and process payment.
+**Breezepay Woocommerce plugin** integrates pay with Breezepay option to their woocommerce website without any hassle integration steps during the checkout process.
+
+== Supported Chain ==
+Breezepay currently supports Solana USDC/USDT, Ethereum USDT and XRP. We regularly update our program to bring wide support for major chain and tokens.
+
+== Requirements ==
+
+To install and configure WooCommerce Breezepay, you will need:
+
+* WordPress Version 6.0 or newer
+* WooCommerce Version 7.4 or newer (installed and activated)
+* PHP Version 7.4 or newer
+* Breezepay merchant account
+
+== Use of Third Party API ==
+The WooCommerce Breezepay plugin depends on Breezepay API (https://api.paywithbreeze.co/api/v1) to generate unique, one-time, short lived payment url to which users are redirected to complete the payment process.
+Breezepay's api use oauth using merchants client ID and client secret to determine their account and generate payment link of behalf of merchant.
+Futher total amount and reference ID of woocoomerce order is sent to the api to determine the order's payment and amount.
+
+Refer to our terms and condition (https://www.breezepay.com.au/termsandconditions) and privacy policy (https://www.breezepay.com.au/privacy) for any further conditions regarding or data collection or privacy aspects.
