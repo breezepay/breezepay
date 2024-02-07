@@ -26,7 +26,8 @@ To install and configure WooCommerce Breezepay, you will need:
 
 == Use of Third Party API ==
 The WooCommerce Breezepay plugin depends on Breezepay API (https://api.paywithbreeze.co/api/v1) to generate unique, one-time, short lived payment url to which users are redirected to complete the payment process.
-Breezepay's api use oauth using merchants client ID and client secret to determine their account and generate payment link of behalf of merchant.
-Futher total amount and reference ID of woocoomerce order is sent to the api to determine the order's payment and amount.
+
+Breezepay's api uses OAuth 2.0 merchants client ID and client secret for validation.
+It then takes the 'total amount' and 'reference ID' of customer's WooCommerce order, to generate the unique, one-time, short lived payment URL
 
 Refer to our terms and condition (https://www.breezepay.com.au/termsandconditions) and privacy policy (https://www.breezepay.com.au/privacy) for any further conditions regarding or data collection or privacy aspects.
