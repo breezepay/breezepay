@@ -148,7 +148,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
     );
     $result = $api->createPayment(
       $order->get_total(),
-      $return_url,
+      esc_url($return_url),
       $order_id
     );
 
@@ -156,7 +156,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
 
     return array(
       'result' => 'success',
-      'redirect' => $redirect
+      'redirect' => esc_url($redirect)
     );
   }
 
@@ -192,15 +192,9 @@ class Breezepay_Gateway extends WC_Payment_Gateway
    */
   public function handle_webhook()
   {
-    $payload = file_get_contents('php://input');
+    $data = $this->get_filtered_request(file_get_contents('php://input'));
 
-    if (!empty($payload) && $this->validate_webhook()) {
-      $data = json_decode($payload, true);
-
-      if (!isset($data['order_id'])) {
-        // Probably a charge not created by us.
-        exit;
-      }
+    if ($this->validate_webhook()) {
 
       $order_id = $data['order_id'];
 
@@ -210,6 +204,35 @@ class Breezepay_Gateway extends WC_Payment_Gateway
     }
 
     wp_die('Breezepay Webhook Request Failure', 'Breezepay Webhook', array('response' => 500));
+  }
+
+  private function validate_data($data)
+  {
+    $data = sanitize_text_field($data);
+    if (!empty($data)) {
+      return $data;
+    }
+    wp_die('invalid data');
+  }
+
+  private function get_filtered_request($request)
+  {
+    $validated_data = [];
+
+    if (empty($request)) {
+      wp_die('request is empty');
+    }
+
+    $data = json_decode($request, true);
+
+    foreach (array("order_id", "status") as $key) {
+      if (!array_key_exists($key, $data)) {
+        wp_die($key . ' is required');
+      }
+      $validated_data[$key] = $this->validate_data($data[$key]);
+    }
+
+    return $validated_data;
   }
 
   /**
@@ -223,8 +246,8 @@ class Breezepay_Gateway extends WC_Payment_Gateway
       return false;
     }
 
-    $hook_signature = $_SERVER['HTTP_X_WEBHOOK_SIGNATURE'];
-    $message = $_SERVER['HTTP_X_WEBHOOK_MSG'];
+    $hook_signature = sanitize_text_field($_SERVER['HTTP_X_WEBHOOK_SIGNATURE']);
+    $message = sanitize_text_field($_SERVER['HTTP_X_WEBHOOK_MSG']);
 
     $secret = $this->get_option('webhook_secret');
 
