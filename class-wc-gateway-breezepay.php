@@ -192,7 +192,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
    */
   public function handle_webhook()
   {
-    $data = $this->validate_request(file_get_contents('php://input'));
+    $data = $this->get_filtered_request(file_get_contents('php://input'));
 
     if ($this->validate_webhook()) {
 
@@ -215,7 +215,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
     wp_die('invalid data');
   }
 
-  private function validate_request($request)
+  private function get_filtered_request($request)
   {
     $validated_data = [];
 
