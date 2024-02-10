@@ -4,7 +4,7 @@
 Plugin Name:            Breezepay
 Plugin URI:             https://github.com/breezepay/breezepay-woocommerce/
 Description:            Allows customers to pay with their Crypto Wallet via Breezpay Gateway
-Version:                1.0
+Version:                1.0.0
 Requires PHP:           7.4
 Requires at least:      6.0
 Tested up to:           6.3
@@ -32,7 +32,7 @@ along with Breezepay WooCommerce. If not, see https://www.gnu.org/licenses/gpl-3
 */
 
 if (!defined('ABSPATH')) {
-    exit;
+  exit;
 }
 
 /**
@@ -40,38 +40,38 @@ if (!defined('ABSPATH')) {
  *
  * @return void
  */
-function bp_init_gateway()
+function breezepay_init_gateway()
 {
-    if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-        require_once 'class-wc-gateway-breezepay.php';
-        add_action('init', 'bp_wc_register_blockchain_status');
-        add_filter('wc_order_statuses', 'bp_wc_add_status');
-        add_filter('woocommerce_payment_gateways', 'bp_wc_add_breezepay_class');
-    }
+  if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+    require_once 'class-wc-gateway-breezepay.php';
+    add_action('init', 'breezepay_wc_register_blockchain_status');
+    add_filter('wc_order_statuses', 'breezepay_wc_add_status');
+    add_filter('woocommerce_payment_gateways', 'breezepay_wc_add_breezepay_class');
+  }
 }
-add_action('plugins_loaded', 'bp_init_gateway');
+add_action('plugins_loaded', 'breezepay_init_gateway');
 
 /**
  * Initialize Breezepay class
  */
-function bp_wc_add_breezepay_class($methods)
+function breezepay_wc_add_breezepay_class($methods)
 {
-    $methods[] = 'WC_Gateway_Breezepay';
-    return $methods;
+  $methods[] = 'Breezepay_Gateway';
+  return $methods;
 }
 
 /**
  * Register new status for Blockchain Pending
  */
-function bp_wc_register_blockchain_status()
+function breezepay_wc_register_blockchain_status()
 {
-    register_post_status('wc-blockchainpending', array(
-        'label'                     => __('Blockchain Pending', 'breezepay'),
-        'public'                    => true,
-        'show_in_admin_status_list' => true,
-        /* translators: WooCommerce order count in blockchain pending. */
-        'label_count'               => _n_noop('Blockchain pending <span class="count">(%s)</span>', 'Blockchain pending <span class="count">(%s)</span>'),
-    ));
+  register_post_status('breezepay-wc-blockchainpending', array(
+    'label'                     => __('Blockchain Pending', 'breezepay'),
+    'public'                    => true,
+    'show_in_admin_status_list' => true,
+    /* translators: WooCommerce order count in blockchain pending. */
+    'label_count'               => _n_noop('Blockchain pending <span class="count">(%s)</span>', 'Blockchain pending <span class="count">(%s)</span>'),
+  ));
 }
 
 /**
@@ -79,18 +79,18 @@ function bp_wc_register_blockchain_status()
  * 
  * @param array $wc_statuses_arr
  */
-function bp_wc_add_status($wc_statuses_arr)
+function breezepay_wc_add_status($wc_statuses_arr)
 {
-    $new_statuses_arr = array();
+  $new_statuses_arr = array();
 
-    // Add new order status after payment pending.
-    foreach ($wc_statuses_arr as $id => $label) {
-        $new_statuses_arr[$id] = $label;
+  // Add new order status after payment pending.
+  foreach ($wc_statuses_arr as $id => $label) {
+    $new_statuses_arr[$id] = $label;
 
-        if ('wc-pending' === $id) {  // after "Payment Pending" status.
-            $new_statuses_arr['wc-blockchainpending'] = __('Blockchain Pending', 'breezepay');
-        }
+    if ('wc-pending' === $id) {  // after "Payment Pending" status.
+      $new_statuses_arr['breezepay-wc-blockchainpending'] = __('Blockchain Pending', 'breezepay');
     }
+  }
 
-    return $new_statuses_arr;
+  return $new_statuses_arr;
 }
