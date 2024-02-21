@@ -192,13 +192,11 @@ class Breezepay_Gateway extends WC_Payment_Gateway
    */
   public function handle_webhook()
   {
-    $data = $this->get_filtered_request(file_get_contents('php://input'));
+    $order_id = $this->validate_data($_GET['order_id']);
+    $status = $this->validate_data($_GET['status']);
 
     if ($this->validate_webhook()) {
-
-      $order_id = $data['order_id'];
-
-      $this->breezepay_update_order_status(wc_get_order($order_id), $data['status']);
+      $this->breezepay_update_order_status(wc_get_order($order_id), $status);
 
       exit;  // 200 response for acknowledgement.
     }
@@ -213,26 +211,6 @@ class Breezepay_Gateway extends WC_Payment_Gateway
       return $data;
     }
     wp_die('invalid data');
-  }
-
-  private function get_filtered_request($request)
-  {
-    $validated_data = [];
-
-    if (empty($request)) {
-      wp_die('request is empty');
-    }
-
-    $data = json_decode($request, true);
-
-    foreach (array("order_id", "status") as $key) {
-      if (!array_key_exists($key, $data)) {
-        wp_die($key . ' is required');
-      }
-      $validated_data[$key] = $this->validate_data($data[$key]);
-    }
-
-    return $validated_data;
   }
 
   /**
