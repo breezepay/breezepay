@@ -101,7 +101,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
           // translators: Description field for API on settings page. Includes external link.
           __(
             'You can manage your Webhook keys within the Breezepay Settings page, available here: %s',
-            'breezppay'
+            'breezepay'
           ),
           esc_url('https://merchant.paywithbreeze.com.au')
         ),
