@@ -183,7 +183,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
         $order->payment_complete();
         break;
       default:
-        exit;
+        wp_die('invalid status');
     }
   }
 
