@@ -9,7 +9,7 @@ Requires PHP:           7.4
 Requires at least:      6.0
 Tested up to:           6.3
 WC requires at least:   7.4
-WC tested up to:        8.2
+WC tested up to:        8.6
 Author:                 Breezepay
 Author URI:             https://breezepay.com.au/
 License:                GPLv3+

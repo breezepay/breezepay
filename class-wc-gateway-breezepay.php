@@ -3,15 +3,11 @@
 class Breezepay_Gateway extends WC_Payment_Gateway
 {
   /**
-   * Log_enabled - whether or not logging is enabled
-   * 
    * @var bool	Whether or not logging is enabled 
    */
   public static $log_enabled = false;
 
   /** 
-   * WC_Logger Logger instance
-   * 
    * @var WC_Logger Logger instance
    * */
   public static $log = false;
@@ -47,23 +43,23 @@ class Breezepay_Gateway extends WC_Payment_Gateway
   {
     $this->form_fields = array(
       'enabled' => array(
-        'title' => __('Enable/Disable', 'woocommerce'),
+        'title' => __('Enable/Disable', 'breezepay'),
         'type' => 'checkbox',
         'label' => __('Enable Breezepay Commerce Payment', 'breezepay'),
         'default' => 'yes',
       ),
       'title' => array(
-        'title' => __('Title', 'woocommerce'),
+        'title' => __('Title', 'breezepay'),
         'type' => 'text',
-        'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
+        'description' => __('This controls the title which the user sees during checkout.', 'breezepay'),
         'default' => __('Pay With Breezepay', 'breezepay'),
         'desc_tip' => true,
       ),
       'description' => array(
-        'title' => __('Description', 'woocommerce'),
+        'title' => __('Description', 'breezepay'),
         'type' => 'text',
         'desc_tip' => true,
-        'description' => __('This controls the description which the user sees during checkout.', 'woocommerce'),
+        'description' => __('This controls the description which the user sees during checkout.', 'breezepay'),
         'default' => __('Pay with Bitcoin, Sol, XLM or other cryptocurrencies.', 'breezepay'),
       ),
       'client_id' => array(
@@ -107,9 +103,9 @@ class Breezepay_Gateway extends WC_Payment_Gateway
         ),
       ),
       'debug' => array(
-        'title' => __('Debug log', 'woocommerce'),
+        'title' => __('Debug log', 'breezepay'),
         'type' => 'checkbox',
-        'label' => __('Enable logging', 'woocommerce'),
+        'label' => __('Enable logging', 'breezepay'),
         'default' => 'no',
         // translators: Description for 'Debug log' section of settings page.
         'description' => sprintf(__('Log Breezepay API events inside %s', 'breezepay'), '<code>' . WC_Log_Handler_File::get_log_file_path('breezepay') . '</code>'),
@@ -192,8 +188,16 @@ class Breezepay_Gateway extends WC_Payment_Gateway
    */
   public function handle_webhook()
   {
-    $order_id = $this->validate_data($_GET['order_id']);
-    $status = $this->validate_data($_GET['status']);
+    $order_id = sanitize_text_field($_GET['order_id']);
+    $status = sanitize_text_field($_GET['status']);
+
+    if (empty($order_id)) {
+      wp_die('order id is invalid');
+    }
+
+    if (empty($status)) {
+      wp_die('status is invalid');
+    }
 
     if ($this->validate_webhook()) {
       $this->breezepay_update_order_status(wc_get_order($order_id), $status);
@@ -202,15 +206,6 @@ class Breezepay_Gateway extends WC_Payment_Gateway
     }
 
     wp_die('Breezepay Webhook Request Failure', 'Breezepay Webhook', array('response' => 500));
-  }
-
-  private function validate_data($data)
-  {
-    $data = sanitize_text_field($data);
-    if (!empty($data)) {
-      return $data;
-    }
-    wp_die('invalid data');
   }
 
   /**

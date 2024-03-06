@@ -7,7 +7,7 @@ Breezepay Woocommerce plugin allows woocommerce powered website to add crypto pa
 ## Requirements
 
 - Wordpress (Working upto v6.3.2)
-- Woocommerce (Working upto v8.2.1)
+- Woocommerce (Working upto v8.6.1)
 
 ## Installation
 
