@@ -15,6 +15,7 @@ class BreezepayAPIHandler
 
   /**
    * Constructor
+   * 
    * @param string $clientID
    * @param string $clientSecret
    */
@@ -26,6 +27,7 @@ class BreezepayAPIHandler
 
   /**
    * Get base64 encode client ID
+   * 
    * @return string
    */
   private function _getEncodedSecret(): string
@@ -47,16 +49,13 @@ class BreezepayAPIHandler
       'method' => $method,
       'headers' => $headers
     );
-
     $url = $this->_baseURL . $endpoint;
-
     if (in_array($method, array('POST', 'PUT'))) {
       $args['body'] = json_encode($params);
     } else {
       $url = add_query_arg($params, $url);
     }
     $response = wp_remote_request(esc_url_raw($url), $args);
-
     if (is_wp_error($response)) {
       return array(false, $response->get_error_message());
     } else {

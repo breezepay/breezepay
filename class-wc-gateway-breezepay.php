@@ -3,7 +3,7 @@
 class Breezepay_Gateway extends WC_Payment_Gateway
 {
   /**
-   * @var bool	Whether or not logging is enabled 
+   * @var bool enable or disable logging
    */
   public static $log_enabled = false;
 
@@ -12,25 +12,23 @@ class Breezepay_Gateway extends WC_Payment_Gateway
    * */
   public static $log = false;
 
+  /**
+   * Constructor
+   */
   public function __construct()
   {
     $this->id = 'breezepay';
     $this->has_fields = false;
     $this->order_button_text = __('Proceed to Breezepay', 'breezepay');
     $this->method_title = __('Breezepay', 'breezepay');
-
     $this->init_form_fields();
     $this->init_settings();
-
     // Define user set variables.
     $this->title = $this->get_option('title');
     $this->description = $this->get_option('description');
     $this->debug = 'yes' === $this->get_option('debug', 'no');
-
     self::$log_enabled = $this->debug;
-
     add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-    // add_filter( 'woocommerce_order_data_store_cpt_get_orders_query', array( $this, '_custom_query_var' ), 10, 2 );
     add_action('woocommerce_api_wc_gateway_breezepay', array($this, 'handle_webhook'));
   }
 
@@ -68,7 +66,6 @@ class Breezepay_Gateway extends WC_Payment_Gateway
         'desc_tip' => true,
         'default' => '',
         'description' => sprintf(
-          // translators: Description field for API on settings page. Includes external link.
           __(
             'You can manage your API keys within the Breezepay Settings page, available here: %s',
             'breezepay'
@@ -81,7 +78,6 @@ class Breezepay_Gateway extends WC_Payment_Gateway
         'type' => 'text',
         'default' => '',
         'description' => sprintf(
-          // translators: Description field for API on settings page. Includes external link.
           __(
             'You can manage your API keys within the Breezepay Settings page, available here: %s',
             'breezepay'
@@ -94,7 +90,6 @@ class Breezepay_Gateway extends WC_Payment_Gateway
         'type' => 'text',
         'default' => '',
         'description' => sprintf(
-          // translators: Description field for API on settings page. Includes external link.
           __(
             'You can manage your Webhook keys within the Breezepay Settings page, available here: %s',
             'breezepay'
@@ -107,14 +102,15 @@ class Breezepay_Gateway extends WC_Payment_Gateway
         'type' => 'checkbox',
         'label' => __('Enable logging', 'breezepay'),
         'default' => 'no',
-        // translators: Description for 'Debug log' section of settings page.
         'description' => sprintf(__('Log Breezepay API events inside %s', 'breezepay'), '<code>' . WC_Log_Handler_File::get_log_file_path('breezepay') . '</code>'),
       ),
     );
   }
 
   /**
-   * Init the API class and set the API key etc.
+   * Init the API class and set the API key
+   * 
+   * @return void
    */
   protected function init_api()
   {
@@ -122,7 +118,7 @@ class Breezepay_Gateway extends WC_Payment_Gateway
   }
 
   /**
-   * Process payments
+   * Get payment info and refirect url
    *
    * @param $order_id
    * @return array
@@ -130,26 +126,21 @@ class Breezepay_Gateway extends WC_Payment_Gateway
   public function process_payment($order_id)
   {
     global $woocommerce;
-
-    // we need it to get any order details
     $order = wc_get_order($order_id);
-
     $this->init_api();
-
+    // generate return url to the woocommerce order complete
     $return_url = $this->get_return_url($order);
-
     $api = new BreezepayAPIHandler(
       $this->get_option('client_id'),
       $this->get_option('client_secret')
     );
+    // get payment info from the API
     $result = $api->createPayment(
       $order->get_total(),
       esc_url($return_url),
       $order_id
     );
-
     $redirect = $result['payment_url'];
-
     return array(
       'result' => 'success',
       'redirect' => esc_url($redirect)
@@ -185,51 +176,42 @@ class Breezepay_Gateway extends WC_Payment_Gateway
 
   /**
    * Handle requests sent to webhook.
+   * 
+   * @return void
    */
   public function handle_webhook()
   {
     $order_id = sanitize_text_field($_GET['order_id']);
     $status = sanitize_text_field($_GET['status']);
-
     if (empty($order_id)) {
       wp_die('order id is invalid');
     }
-
     if (empty($status)) {
       wp_die('status is invalid');
     }
-
     if ($this->validate_webhook()) {
       $this->breezepay_update_order_status(wc_get_order($order_id), $status);
-
       exit;  // 200 response for acknowledgement.
     }
-
     wp_die('Breezepay Webhook Request Failure', 'Breezepay Webhook', array('response' => 500));
   }
 
   /**
    * Check if webhook request is valid.
-   * 
-   * @param string $payload
    */
   public function validate_webhook()
   {
     if (!isset($_SERVER['HTTP_X_WEBHOOK_SIGNATURE']) && !isset($_SERVER['HTTP_X_WEBHOOK_MSG'])) {
       return false;
     }
-
     $hook_signature = sanitize_text_field($_SERVER['HTTP_X_WEBHOOK_SIGNATURE']);
     $message = sanitize_text_field($_SERVER['HTTP_X_WEBHOOK_MSG']);
-
+    // decrypt the webhook msg and check for validity
     $secret = $this->get_option('webhook_secret');
-
     $wc_signature = hash_hmac('sha256', $message, $secret);
-
     if ($hook_signature === $wc_signature) {
       return true;
     }
-
     return false;
   }
 }
