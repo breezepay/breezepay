@@ -55,7 +55,9 @@ To install and configure WooCommerce Breezepay, you will need:
 * PHP Version 7.4 (Recommended version 8.0)
 * Breezepay merchant account
 
-== Automatic Installation ==
+== Installation ==
+
+** Automatic Installation **
 
 1. To do an automatic install of Breezepay, log in to your WordPress dashboard, navigate to the Plugins menu, and click “Add New.”
 2. In the search field type “Breezepay,” then click “Search Plugins.”
@@ -63,7 +65,7 @@ To install and configure WooCommerce Breezepay, you will need:
 4. Activate the plugin once the installation if finished.
 5. Navigate to WooCommerce settings to configure Breezepay as your payment gateway.
 
-== Manual Installation ==
+** Manual Installation ** 
 
 1. Head towards for github repository (https://github.com/breezepay/breezepay-woocommerce) and download our latest code by clicking "Download ZIP" button.
 2. Unzip the plugin.
