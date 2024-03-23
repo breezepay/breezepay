@@ -7,9 +7,9 @@ Description:            Allows customers to pay with their Crypto Wallet via Bre
 Version:                1.0.0
 Requires PHP:           7.4
 Requires at least:      6.0
-Tested up to:           6.4.3
-WC requires at least:   7.4.0
-WC tested up to:        8.7.0
+Tested up to:           6.4
+WC requires at least:   7.4
+WC tested up to:        8.7
 Author:                 Breezepay
 Author URI:             https://breezepay.com.au/
 License:                GPLv3+
@@ -49,6 +49,13 @@ function breezepay_init_gateway()
     add_filter('woocommerce_payment_gateways', 'breezepay_wc_add_breezepay_class');
   }
 }
+
+// check for HPOS compatibility
+add_action('before_woocommerce_init', function () {
+  if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+    \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+  }
+});
 
 add_action('plugins_loaded', 'breezepay_init_gateway');
 
