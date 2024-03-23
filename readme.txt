@@ -3,13 +3,12 @@
 Contributors: Breezepay
 Tags: Cryptocurrency, WooCommerce, USDC, USDT, Payments
 Requires at least: 6.0
-Tested up to: 6.4.3
+Tested up to: 6.4
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Short Description
 Make cryptocurrency payments a breeze in your WooCommerce store with the Breezepay plugin.
 
 == Description ==
@@ -57,7 +56,7 @@ To install and configure WooCommerce Breezepay, you will need:
 
 == Installation ==
 
-** Automatic Installation **
+Automatic Installation
 
 1. To do an automatic install of Breezepay, log in to your WordPress dashboard, navigate to the Plugins menu, and click “Add New.”
 2. In the search field type “Breezepay,” then click “Search Plugins.”
@@ -65,7 +64,7 @@ To install and configure WooCommerce Breezepay, you will need:
 4. Activate the plugin once the installation if finished.
 5. Navigate to WooCommerce settings to configure Breezepay as your payment gateway.
 
-** Manual Installation ** 
+Manual Installation
 
 1. Head towards for github repository (https://github.com/breezepay/breezepay-woocommerce) and download our latest code by clicking "Download ZIP" button.
 2. Unzip the plugin.
